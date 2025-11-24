@@ -1,14 +1,14 @@
-SELECT
-    S.Site AS Site,
-    COUNT(O.idOrder) AS Total_Drinks
-FROM
-    `Order` AS O
-JOIN
-    Customer AS C ON O.Customer_id = C.idCustomer
-JOIN
-    Site AS S ON C.Site_id = S.idSite
-WHERE
-    O.Drinks_id IS NOT NULL 
-    AND S.Site = 'Sevilla' 
-GROUP BY
-    S.Site;
+select p.Name, count(o.product_idProduct) as cantidad_Pedidos, Site
+from Product as p
+join OrderLine as o
+on o.Product_idProduct = p.idProduct
+join Orders as l
+on o.order_idOrder = l.idOrder
+join Branch as b
+on l.Branch_idBranch  = b.idBranch
+join Site as S
+on s.idSite = b.Site_id
+where p.Type = "Drink"
+group by p.Name, o.product_idProduct, Site
+;
+

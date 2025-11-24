@@ -1,354 +1,228 @@
--- MySQL dump 10.13  Distrib 9.4.0, for macos15 (x86_64)
---
--- Host: localhost    Database: Restaurant
--- ------------------------------------------------------
--- Server version	9.4.0
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+-- -----------------------------------------------------
+-- Schema Restaurant
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `Restaurant` DEFAULT CHARACTER SET utf8mb3 ;
+USE `Restaurant` ;
 
---
--- Table structure for table `Branch`
---
+-- ------------------ CREACIÓN DE TABLAS ------------------
 
-DROP TABLE IF EXISTS `Branch`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Branch` (
-  `idBranch` int NOT NULL AUTO_INCREMENT,
-  `Address` varchar(45) NOT NULL,
-  `PostalCode` varchar(45) NOT NULL,
-  `Province_id` int NOT NULL,
-  `Site_id` int NOT NULL,
-  `Employee_id` int NOT NULL,
-  `Order_id` int NOT NULL,
-  PRIMARY KEY (`idBranch`),
-  KEY `fk_Branch_Province1_idx` (`Province_id`),
-  KEY `fk_Branch_Site1_idx` (`Site_id`),
-  KEY `fk_Branch_Employee1_idx` (`Employee_id`),
-  KEY `fk_Branch_Order1_idx` (`Order_id`),
-  CONSTRAINT `fk_Branch_Employee1` FOREIGN KEY (`Employee_id`) REFERENCES `Employee` (`idEmployee`),
-  CONSTRAINT `fk_Branch_Order1` FOREIGN KEY (`Order_id`) REFERENCES `Order` (`idOrder`),
-  CONSTRAINT `fk_Branch_Province1` FOREIGN KEY (`Province_id`) REFERENCES `Province` (`idProvince`),
-  CONSTRAINT `fk_Branch_Site1` FOREIGN KEY (`Site_id`) REFERENCES `Site` (`idSite`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
+-- Table `Restaurant`.`Province`
+CREATE TABLE IF NOT EXISTS `Restaurant`.`Province` (
+  `idProvince` INT NOT NULL AUTO_INCREMENT,
+  `Province` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`idProvince`))
+ENGINE = InnoDB AUTO_INCREMENT = 5 DEFAULT CHARACTER SET = utf8mb3;
 
---
--- Dumping data for table `Branch`
---
+-- Table `Restaurant`.`Site`
+CREATE TABLE IF NOT EXISTS `Restaurant`.`Site` (
+  `idSite` INT NOT NULL AUTO_INCREMENT,
+  `Site` VARCHAR(45) NULL DEFAULT NULL,
+  `Province_idProvince` INT NOT NULL,
+  PRIMARY KEY (`idSite`),
+  INDEX `fk_Site_Province1_idx` (`Province_idProvince` ASC) VISIBLE,
+  CONSTRAINT `fk_Site_Province1`
+    FOREIGN KEY (`Province_idProvince`)
+    REFERENCES `Restaurant`.`Province` (`idProvince`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION)
+ENGINE = InnoDB AUTO_INCREMENT = 4 DEFAULT CHARACTER SET = utf8mb3;
 
-LOCK TABLES `Branch` WRITE;
-/*!40000 ALTER TABLE `Branch` DISABLE KEYS */;
-INSERT INTO `Branch` VALUES (1,'Rambla de Cataluña 50','08007',1,1,1,1002),(2,'Gran Vía 12','28013',3,2,2,1003);
-/*!40000 ALTER TABLE `Branch` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Table `Restaurant`.`Branch`
+CREATE TABLE IF NOT EXISTS `Restaurant`.`Branch` (
+  `idBranch` INT NOT NULL AUTO_INCREMENT,
+  `Address` VARCHAR(45) NOT NULL,
+  `PostalCode` VARCHAR(45) NOT NULL,
+  `Site_id` INT NOT NULL,
+  PRIMARY KEY (`idBranch`),
+  INDEX `fk_Branch_Site1_idx` (`Site_id` ASC) VISIBLE,
+  CONSTRAINT `fk_Branch_Site1`
+    FOREIGN KEY (`Site_id`)
+    REFERENCES `Restaurant`.`Site` (`idSite`))
+ENGINE = InnoDB AUTO_INCREMENT = 3 DEFAULT CHARACTER SET = utf8mb3;
 
---
--- Table structure for table `CategoryPizza`
---
+-- Table `Restaurant`.`CategoryPizza`
+CREATE TABLE IF NOT EXISTS `Restaurant`.`CategoryPizza` (
+  `idCategoryPizza` INT NOT NULL AUTO_INCREMENT,
+  `Name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idCategoryPizza`))
+ENGINE = InnoDB AUTO_INCREMENT = 104 DEFAULT CHARACTER SET = utf8mb3;
 
-DROP TABLE IF EXISTS `CategoryPizza`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `CategoryPizza` (
-  `idCategoryPizza` int NOT NULL AUTO_INCREMENT,
-  `Name` varchar(45) NOT NULL,
-  `Pizza_idPizza` int NOT NULL,
-  PRIMARY KEY (`idCategoryPizza`),
-  KEY `fk_CategoryPizza_Pizza1_idx` (`Pizza_idPizza`),
-  CONSTRAINT `fk_CategoryPizza_Pizza1` FOREIGN KEY (`Pizza_idPizza`) REFERENCES `Pizza` (`idPizza`)
-) ENGINE=InnoDB AUTO_INCREMENT=104 DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
+-- Table `Restaurant`.`Customer`
+CREATE TABLE IF NOT EXISTS `Restaurant`.`Customer` (
+  `idCustomer` INT NOT NULL AUTO_INCREMENT,
+  `Name` VARCHAR(45) NOT NULL,
+  `LastName` VARCHAR(45) NOT NULL,
+  `Address` VARCHAR(45) NOT NULL,
+  `PostalCode` VARCHAR(45) NOT NULL,
+  `Site_id` INT NOT NULL,
+  `PhoneNumber` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idCustomer`),
+  INDEX `fk_Customer_Site1_idx` (`Site_id` ASC) VISIBLE,
+  CONSTRAINT `fk_Customer_Site1`
+    FOREIGN KEY (`Site_id`)
+    REFERENCES `Restaurant`.`Site` (`idSite`))
+ENGINE = InnoDB AUTO_INCREMENT = 4 DEFAULT CHARACTER SET = utf8mb3;
 
---
--- Dumping data for table `CategoryPizza`
---
+-- Table `Restaurant`.`Employee`
+CREATE TABLE IF NOT EXISTS `Restaurant`.`Employee` (
+  `idEmployee` INT NOT NULL AUTO_INCREMENT,
+  `Name` VARCHAR(45) NOT NULL,
+  `LastName` VARCHAR(45) NOT NULL,
+  `NIF` VARCHAR(45) NULL DEFAULT NULL,
+  `Rol` ENUM("Cook", "Deliverey") NULL,
+  `Branch_idBranch` INT NOT NULL,
+  PRIMARY KEY (`idEmployee`),
+  INDEX `fk_Employee_Branch1_idx` (`Branch_idBranch` ASC) VISIBLE,
+  CONSTRAINT `fk_Employee_Branch1`
+    FOREIGN KEY (`Branch_idBranch`)
+    REFERENCES `Restaurant`.`Branch` (`idBranch`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION)
+ENGINE = InnoDB AUTO_INCREMENT = 4 DEFAULT CHARACTER SET = utf8mb3;
 
-LOCK TABLES `CategoryPizza` WRITE;
-/*!40000 ALTER TABLE `CategoryPizza` DISABLE KEYS */;
-INSERT INTO `CategoryPizza` VALUES (101,'Clásica',1),(102,'Especial',2),(103,'Tropical',3);
-/*!40000 ALTER TABLE `CategoryPizza` ENABLE KEYS */;
-UNLOCK TABLES;
+-- Table `Restaurant`.`Order`
+CREATE TABLE IF NOT EXISTS `Restaurant`.`Order` (
+  `idOrder` INT NOT NULL AUTO_INCREMENT,
+  `OrderDate` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `TakeAway` BINARY(2) NOT NULL,
+  `TotalPrice` DECIMAL(5,0) NOT NULL,
+  `Type` ENUM("Delivery", "Pickup") NOT NULL,
+  `Branch_idBranch` INT NOT NULL,
+  `Employee_idEmployee` INT NULL,
+  `ArrivalTime` DATETIME NULL,
+  `Customer_idCustomer` INT NOT NULL,
+  PRIMARY KEY (`idOrder`),
+  INDEX `fk_Order_Branch1_idx` (`Branch_idBranch` ASC) VISIBLE,
+  INDEX `fk_Order_Employee1_idx` (`Employee_idEmployee` ASC) VISIBLE,
+  INDEX `fk_Order_Customer1_idx` (`Customer_idCustomer` ASC) VISIBLE,
+  CONSTRAINT `fk_Order_Branch1`
+    FOREIGN KEY (`Branch_idBranch`)
+    REFERENCES `Restaurant`.`Branch` (`idBranch`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Order_Employee1`
+    FOREIGN KEY (`Employee_idEmployee`)
+    REFERENCES `Restaurant`.`Employee` (`idEmployee`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Order_Customer1`
+    FOREIGN KEY (`Customer_idCustomer`)
+    REFERENCES `Restaurant`.`Customer` (`idCustomer`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION)
+ENGINE = InnoDB AUTO_INCREMENT = 1004 DEFAULT CHARACTER SET = utf8mb3;
 
---
--- Table structure for table `Customer`
---
+-- Table `Restaurant`.`Product`
+CREATE TABLE IF NOT EXISTS `Restaurant`.`Product` (
+  `idProduct` INT NOT NULL AUTO_INCREMENT,
+  `Name` VARCHAR(45) NOT NULL,
+  `Description` VARCHAR(45) NOT NULL,
+  `Image` BLOB NULL DEFAULT NULL,
+  `Price` DECIMAL(5,0) NOT NULL,
+  `Type` ENUM("Pizza", "Burguer", "Drink") NOT NULL,
+  `CategoryPizza_idCategoryPizza` INT NULL,
+  PRIMARY KEY (`idProduct`),
+  INDEX `fk_Product_CategoryPizza1_idx` (`CategoryPizza_idCategoryPizza` ASC) VISIBLE,
+  CONSTRAINT `fk_Product_CategoryPizza1`
+    FOREIGN KEY (`CategoryPizza_idCategoryPizza`)
+    REFERENCES `Restaurant`.`CategoryPizza` (`idCategoryPizza`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION)
+ENGINE = InnoDB AUTO_INCREMENT = 4 DEFAULT CHARACTER SET = utf8mb3;
 
-DROP TABLE IF EXISTS `Customer`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Customer` (
-  `idCustomer` int NOT NULL AUTO_INCREMENT,
-  `Name` varchar(45) NOT NULL,
-  `LastName` varchar(45) NOT NULL,
-  `Address` varchar(45) NOT NULL,
-  `PostalCode` varchar(45) NOT NULL,
-  `Province_id` int NOT NULL,
-  `Site_id` int NOT NULL,
-  `PhoneNumber` varchar(45) NOT NULL,
-  PRIMARY KEY (`idCustomer`),
-  KEY `fk_Customer_Province1_idx` (`Province_id`),
-  KEY `fk_Customer_Site1_idx` (`Site_id`),
-  CONSTRAINT `fk_Customer_Province1` FOREIGN KEY (`Province_id`) REFERENCES `Province` (`idProvince`),
-  CONSTRAINT `fk_Customer_Site1` FOREIGN KEY (`Site_id`) REFERENCES `Site` (`idSite`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
+-- Table `Restaurant`.`OrderLine`
+CREATE TABLE IF NOT EXISTS `Restaurant`.`OrderLine` (
+  `idOrderLine` INT NOT NULL AUTO_INCREMENT,
+  `Product_idProduct` INT NOT NULL,
+  `Quantity` INT NOT NULL,
+  `Unit_Price` DECIMAL(5) NOT NULL,
+  `Order_idOrder` INT NOT NULL,
+  PRIMARY KEY (`idOrderLine`),
+  INDEX `fk_OrderLine_Product1_idx` (`Product_idProduct` ASC) VISIBLE,
+  INDEX `fk_OrderLine_Order1_idx` (`Order_idOrder` ASC) VISIBLE,
+  CONSTRAINT `fk_OrderLine_Product1`
+    FOREIGN KEY (`Product_idProduct`)
+    REFERENCES `Restaurant`.`Product` (`idProduct`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_OrderLine_Order1`
+    FOREIGN KEY (`Order_idOrder`)
+    REFERENCES `Restaurant`.`Order` (`idOrder`)
+    ON DELETE NO ACTION ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
---
--- Dumping data for table `Customer`
---
 
-LOCK TABLES `Customer` WRITE;
-/*!40000 ALTER TABLE `Customer` DISABLE KEYS */;
-INSERT INTO `Customer` VALUES (1,'Elena','Vázquez','C/ Diagonal 30','08008',1,1,'600111222'),(2,'David','Peralta','Paseo de la Castellana 50','28001',3,2,'655333444'),(3,'Sofía','García','C/ Tetuán 1','41001',4,3,'677888999');
-/*!40000 ALTER TABLE `Customer` ENABLE KEYS */;
-UNLOCK TABLES;
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
---
--- Table structure for table `Drinks`
---
+-- ------------------ INSERCIÓN DE DATOS ------------------
 
-DROP TABLE IF EXISTS `Drinks`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Drinks` (
-  `idDrinks` int NOT NULL AUTO_INCREMENT,
-  `Name` varchar(45) NOT NULL,
-  `Description` varchar(45) DEFAULT NULL,
-  `Image` blob,
-  `Price` decimal(5,0) NOT NULL,
-  PRIMARY KEY (`idDrinks`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
+USE `Restaurant`;
 
---
--- Dumping data for table `Drinks`
---
+-- Deshabilitar temporalmente la comprobación de claves foráneas
+SET FOREIGN_KEY_CHECKS = 0;
 
-LOCK TABLES `Drinks` WRITE;
-/*!40000 ALTER TABLE `Drinks` DISABLE KEYS */;
-INSERT INTO `Drinks` VALUES (1,'Coca Cola Zero','330ml lata',NULL,2),(2,'Agua con gas','500ml botella',NULL,1),(3,'Cerveza Lager','330ml artesana',NULL,3);
-/*!40000 ALTER TABLE `Drinks` ENABLE KEYS */;
-UNLOCK TABLES;
+-- ------------------ 1. GEOGRAFÍA, CATEGORÍAS Y PRODUCTOS ------------------
 
---
--- Table structure for table `Employee`
---
+-- TABLA: Province
+INSERT INTO Province (idProvince, Province) VALUES
+(1, 'Barcelona'),
+(2, 'Madrid'),
+(3, 'Valencia');
 
-DROP TABLE IF EXISTS `Employee`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Employee` (
-  `idEmployee` int NOT NULL AUTO_INCREMENT,
-  `Name` varchar(45) NOT NULL,
-  `LastName` varchar(45) NOT NULL,
-  `NIF` varchar(45) DEFAULT NULL,
-  `Chef` binary(2) NOT NULL,
-  `Delivery` binary(2) NOT NULL,
-  PRIMARY KEY (`idEmployee`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
+-- TABLA: Site - Depende de Province
+INSERT INTO Site (idSite, Site, Province_idProvince) VALUES
+(10, 'Barcelona Ciudad', 1),
+(20, 'Hospitalet', 1),
+(30, 'Madrid Centro', 2);
 
---
--- Dumping data for table `Employee`
---
+-- TABLA: Branch - Depende de Site
+INSERT INTO Branch (idBranch, Address, PostalCode, Site_id) VALUES
+(100, 'C/ Falsa 10', '08001', 10),
+(101, 'Av. Diagonal 20', '08901', 20),
+(102, 'Pza. Mayor 5', '28005', 30);
 
-LOCK TABLES `Employee` WRITE;
-/*!40000 ALTER TABLE `Employee` DISABLE KEYS */;
-INSERT INTO `Employee` VALUES (1,'Marta','Rubio','11111111A',_binary '\0',_binary '\0\0'),(2,'Pablo','López','22222222B',_binary '\0\0',_binary '\0'),(3,'Raúl','Jiménez','33333333C',_binary '\0',_binary '\0\0');
-/*!40000 ALTER TABLE `Employee` ENABLE KEYS */;
-UNLOCK TABLES;
+-- TABLA: CategoryPizza
+INSERT INTO CategoryPizza (idCategoryPizza, Name) VALUES
+(1, 'Clásica'),
+(2, 'Gourmet'),
+(3, 'Vegetal');
 
---
--- Table structure for table `Hamburguer`
---
+-- TABLA: Product - Depende de CategoryPizza (opcional)
+INSERT INTO Product (idProduct, Name, Description, Price, Type, CategoryPizza_idCategoryPizza) VALUES
+(1001, 'Margarita', 'Tomate y mozzarella', 9, 'Pizza', 1),
+(1002, 'Cabra', 'Queso de cabra y cebolla', 12, 'Pizza', 2),
+(2001, 'Doble Beef', 'Doble carne, bacon', 11, 'Burguer', NULL),
+(2002, 'Chicken Grill', 'Pechuga a la plancha', 9, 'Burguer', NULL),
+(3001, 'Agua 50cl', 'Botella de agua mineral', 2, 'Drink', NULL),
+(3002, 'Cola 33cl', 'Bebida de cola', 3, 'Drink', NULL);
 
-DROP TABLE IF EXISTS `Hamburguer`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Hamburguer` (
-  `idHamburguer` int NOT NULL AUTO_INCREMENT,
-  `Name` varchar(45) NOT NULL,
-  `Description` varchar(100) DEFAULT NULL,
-  `Image` blob,
-  `Price` varchar(45) NOT NULL,
-  PRIMARY KEY (`idHamburguer`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
+-- ------------------ 2. CLIENTES Y EMPLEADOS ------------------
 
---
--- Dumping data for table `Hamburguer`
---
+-- TABLA: Customer - Depende de Site
+INSERT INTO Customer (idCustomer, Name, LastName, Address, PostalCode, Site_id, PhoneNumber) VALUES
+(1, 'Elena', 'Ruiz', 'C/ Mar 1', '08002', 10, '600111222'),
+(2, 'Javier', 'Sanz', 'C/ Sol 5', '28001', 30, '655333444');
 
-LOCK TABLES `Hamburguer` WRITE;
-/*!40000 ALTER TABLE `Hamburguer` DISABLE KEYS */;
-INSERT INTO `Hamburguer` VALUES (1,'Doble Cheese','Doble carne y queso fundido, cebolla caramelizada.',NULL,'12'),(2,'Pollo Crispy','Pechuga de pollo crujiente y salsa de miel mostaza.',NULL,'10'),(3,'Veggie Burger','Hamburguesa de lentejas y aguacate.',NULL,'9');
-/*!40000 ALTER TABLE `Hamburguer` ENABLE KEYS */;
-UNLOCK TABLES;
+-- TABLA: Employee - Depende de Branch
+INSERT INTO Employee (idEmployee, Name, LastName, NIF, Rol, Branch_idBranch) VALUES
+(1, 'Marta', 'Gómez', '40000000A', 'Cook', 100),
+(2, 'Pablo', 'Vidal', '40000001B', 'Deliverey', 100),
+(3, 'Raúl', 'Blanco', '40000002C', 'Cook', 102);
 
---
--- Table structure for table `Order`
---
+-- ------------------ 3. PEDIDOS ------------------
 
-DROP TABLE IF EXISTS `Order`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Order` (
-  `idOrder` int NOT NULL AUTO_INCREMENT,
-  `OrderDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `TakeAway` binary(2) NOT NULL,
-  `Quantity` int NOT NULL,
-  `TotalPrice` decimal(5,0) NOT NULL,
-  `Customer_id` int NOT NULL,
-  `Drinks_id` int DEFAULT NULL,
-  `Pizza_id` int DEFAULT NULL,
-  `Hamburguer_id` int DEFAULT NULL,
-  PRIMARY KEY (`idOrder`),
-  KEY `fk_Order_Customer1_idx` (`Customer_id`),
-  KEY `fk_Order_Drinks1_idx` (`Drinks_id`),
-  KEY `fk_Order_Pizza1_idx` (`Pizza_id`),
-  KEY `fk_Order_Hamburguer1_idx` (`Hamburguer_id`),
-  CONSTRAINT `fk_Order_Customer1` FOREIGN KEY (`Customer_id`) REFERENCES `Customer` (`idCustomer`),
-  CONSTRAINT `fk_Order_Drinks1` FOREIGN KEY (`Drinks_id`) REFERENCES `Drinks` (`idDrinks`),
-  CONSTRAINT `fk_Order_Hamburguer1` FOREIGN KEY (`Hamburguer_id`) REFERENCES `Hamburguer` (`idHamburguer`),
-  CONSTRAINT `fk_Order_Pizza1` FOREIGN KEY (`Pizza_id`) REFERENCES `Pizza` (`idPizza`)
-) ENGINE=InnoDB AUTO_INCREMENT=1004 DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
+-- TABLA: Order - Depende de Branch, Customer y Employee (opcional)
+INSERT INTO `Order` (idOrder, TakeAway, TotalPrice, Type, Branch_idBranch, Customer_idCustomer, Employee_idEmployee, ArrivalTime) VALUES
+(5001, b'0', 15, 'Pickup', 100, 1, NULL, NULL),
+(5002, b'1', 24, 'Delivery', 102, 2, NULL, DATE_ADD(NOW(), INTERVAL 30 MINUTE)),
+(5003, b'1', 12, 'Delivery', 100, 1, 2, DATE_ADD(NOW(), INTERVAL 45 MINUTE));
 
---
--- Dumping data for table `Order`
---
+-- TABLA: OrderLine - Depende de Product y Order
+INSERT INTO OrderLine (idOrderLine, Product_idProduct, Quantity, Unit_Price, Order_idOrder) VALUES
+(1, 1001, 1, 9, 5001), -- Margarita (9)
+(2, 3002, 2, 3, 5001), -- Cola (2 * 3 = 6). Total Pedido 5001: 15
+(3, 2001, 2, 11, 5002), -- Doble Beef (2 * 11 = 22)
+(4, 3001, 1, 2, 5002), -- Agua (2). Total Pedido 5002: 24
+(5, 1002, 1, 12, 5003); -- Cabra (12). Total Pedido 5003: 12
 
-LOCK TABLES `Order` WRITE;
-/*!40000 ALTER TABLE `Order` DISABLE KEYS */;
-INSERT INTO `Order` VALUES (1002,'2025-10-27 12:16:44',_binary '\0',2,24,2,NULL,NULL,1),(1003,'2025-10-27 12:21:37',_binary '\0\0',4,8,3,1,NULL,NULL);
-/*!40000 ALTER TABLE `Order` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `Pizza`
---
-
-DROP TABLE IF EXISTS `Pizza`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Pizza` (
-  `idPizza` int NOT NULL AUTO_INCREMENT,
-  `Name` varchar(45) NOT NULL,
-  `Description` varchar(45) NOT NULL,
-  `Image` blob,
-  `Price` decimal(5,0) NOT NULL,
-  PRIMARY KEY (`idPizza`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Pizza`
---
-
-LOCK TABLES `Pizza` WRITE;
-/*!40000 ALTER TABLE `Pizza` DISABLE KEYS */;
-INSERT INTO `Pizza` VALUES (1,'Prosciutto','Jamón y champiñones.',NULL,11),(2,'Vegana','Verduras de temporada, sin queso.',NULL,14),(3,'Hawaiana','Jamón cocido y piña.',NULL,12);
-/*!40000 ALTER TABLE `Pizza` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `Province`
---
-
-DROP TABLE IF EXISTS `Province`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Province` (
-  `idProvince` int NOT NULL AUTO_INCREMENT,
-  `Province` varchar(45) DEFAULT NULL,
-  `Site_idSite` int NOT NULL,
-  PRIMARY KEY (`idProvince`),
-  KEY `fk_Province_Site_idx` (`Site_idSite`),
-  CONSTRAINT `fk_Province_Site` FOREIGN KEY (`Site_idSite`) REFERENCES `Site` (`idSite`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Province`
---
-
-LOCK TABLES `Province` WRITE;
-/*!40000 ALTER TABLE `Province` DISABLE KEYS */;
-INSERT INTO `Province` VALUES (1,'Barcelona',1),(2,'Girona',1),(3,'Madrid',2),(4,'Sevilla',3);
-/*!40000 ALTER TABLE `Province` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `Site`
---
-
-DROP TABLE IF EXISTS `Site`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `Site` (
-  `idSite` int NOT NULL AUTO_INCREMENT,
-  `Site` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`idSite`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Site`
---
-
-LOCK TABLES `Site` WRITE;
-/*!40000 ALTER TABLE `Site` DISABLE KEYS */;
-INSERT INTO `Site` VALUES (1,'Barcelona'),(2,'Madrid'),(3,'Sevilla');
-/*!40000 ALTER TABLE `Site` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `TakeAwayOrder`
---
-
-DROP TABLE IF EXISTS `TakeAwayOrder`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `TakeAwayOrder` (
-  `idTakeAwayOrder` int NOT NULL AUTO_INCREMENT,
-  `DeliveryArrivalTime` datetime DEFAULT NULL,
-  `Order_id` int NOT NULL,
-  `Employee_id` int NOT NULL,
-  PRIMARY KEY (`idTakeAwayOrder`),
-  KEY `fk_TakeAwayOrder_Order1_idx` (`Order_id`),
-  KEY `fk_TakeAwayOrder_Employee1_idx` (`Employee_id`),
-  CONSTRAINT `fk_TakeAwayOrder_Employee1` FOREIGN KEY (`Employee_id`) REFERENCES `Employee` (`idEmployee`),
-  CONSTRAINT `fk_TakeAwayOrder_Order1` FOREIGN KEY (`Order_id`) REFERENCES `Order` (`idOrder`)
-) ENGINE=InnoDB AUTO_INCREMENT=502 DEFAULT CHARSET=utf8mb3;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `TakeAwayOrder`
---
-
-LOCK TABLES `TakeAwayOrder` WRITE;
-/*!40000 ALTER TABLE `TakeAwayOrder` DISABLE KEYS */;
-INSERT INTO `TakeAwayOrder` VALUES (501,'2025-10-27 12:51:58',1002,2);
-/*!40000 ALTER TABLE `TakeAwayOrder` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2025-10-28 12:21:37
+-- Habilitar de nuevo la comprobación de claves foráneas
+SET FOREIGN_KEY_CHECKS = 1;
